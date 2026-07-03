@@ -1,1 +1,1 @@
-C:\Users\admin\Desktop\stellar-vote\target\wasm32v1-none\release\stellar_vote_contract.wasm: C:\Users\admin\Desktop\stellar-vote\contracts\stellar-vote\src\lib.rs
+C:\Users\admin\Desktop\stellar-vote\target\wasm32v1-none\release\stellar_vote_contract.wasm: C:\Users\admin\Desktop\stellar-vote\contracts\stellar-vote\src\lib.rs C:\Users\admin\Desktop\stellar-vote\contracts\stellar-vote\src\test.rs
