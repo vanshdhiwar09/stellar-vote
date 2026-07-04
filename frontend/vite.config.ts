@@ -7,4 +7,8 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  define: {
+    // Required by Stellar SDK & Buffer polyfill in browser (Vite doesn't define global)
+    global: 'globalThis',
+  },
 })

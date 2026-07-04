@@ -45,20 +45,20 @@ pub struct StellarVoteContract;
 #[contractimpl]
 impl StellarVoteContract {
     /// Initializes the poll with a title and a list of options.
-    pub fn init(env: Env, title: String, options: Vec<String>) -> Result<(), Error> {
+    pub fn init(env: Env, title: String, poll_options: Vec<String>) -> Result<(), Error> {
         if env.storage().instance().has(&DataKey::Poll) {
             return Err(Error::AlreadyInitialized);
         }
 
         let mut votes = Map::new(&env);
-        for i in 0..options.len() {
+        for i in 0..poll_options.len() {
             votes.set(i, 0);
         }
 
         let poll = PollData {
             title: title.clone(),
             is_active: true,
-            options,
+            options: poll_options,
             votes,
         };
 
