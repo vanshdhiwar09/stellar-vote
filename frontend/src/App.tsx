@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { useStellar } from './context/StellarContext';
+import { useStellar, type VoteEvent } from './context/StellarContext';
 import { DashboardLayout } from './components/DashboardLayout';
 import {
   Sparkles, FileText, CheckSquare, CheckCircle, Users, Trophy, Rocket, XCircle,
@@ -17,6 +17,15 @@ function parseVotes(raw: unknown): Map<number, number> {
         const numVal = Number(v);
         result.set(isNaN(numKey) ? 0 : numKey, isNaN(numVal) ? 0 : numVal);
       });
+    } else if (Array.isArray(raw)) {
+      // Soroban bindings often return Maps as Arrays of Tuples e.g. [[0, 1], [1, 2]]
+      raw.forEach(item => {
+        if (Array.isArray(item) && item.length >= 2) {
+          const numKey = Number(item[0]);
+          const numVal = Number(item[1]);
+          result.set(isNaN(numKey) ? 0 : numKey, isNaN(numVal) ? 0 : numVal);
+        }
+      });
     } else if (typeof raw === 'object' && raw !== null) {
       for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
         const numKey = Number(k);
@@ -31,7 +40,7 @@ function parseVotes(raw: unknown): Map<number, number> {
 }
 
 export default function App() {
-  const { txStatus, walletAddress, pollData, isPollLoading, pollError, castVote } = useStellar();
+  const { txStatus, walletAddress, pollData, isPollLoading, pollError, castVote, recentEvents } = useStellar();
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
 
   const options = pollData?.options ?? [];
@@ -196,9 +205,22 @@ export default function App() {
               </h3>
 
               <div className="relative pl-7 border-l border-white/10 space-y-7 ml-3 pb-2">
-                {walletAddress && <ActivityItem status="success" title="Wallet Connected" subtitle={`${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)} • Just now`} />}
-                <ActivityItem status="active" title="Poll Initialized" subtitle={`${pollData?.title ?? '—'} • Testnet`} />
-                <ActivityItem status="pending" title="Contract Deployed" subtitle="Stellar Testnet • Phase 3" />
+                {recentEvents.length > 0 ? (
+                  recentEvents.map((ev: VoteEvent) => (
+                    <ActivityItem
+                      key={ev.id}
+                      status="success"
+                      title="New Vote Cast"
+                      subtitle={`${ev.voter.slice(0, 6)}...${ev.voter.slice(-4)} voted for Option ${ev.optionIdx + 1}`}
+                    />
+                  ))
+                ) : (
+                  <>
+                    {walletAddress && <ActivityItem status="success" title="Wallet Connected" subtitle={`${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)} • Just now`} />}
+                    <ActivityItem status="active" title="Poll Initialized" subtitle={`${pollData?.title ?? '—'} • Testnet`} />
+                    <ActivityItem status="pending" title="Contract Deployed" subtitle="Stellar Testnet • Phase 3" />
+                  </>
+                )}
               </div>
 
               <button className="w-full mt-8 bg-[#111129] hover:bg-[#1a1a3a] transition-colors border border-white/5 rounded-xl py-3 text-xs font-semibold text-slate-300 flex items-center justify-center gap-2">

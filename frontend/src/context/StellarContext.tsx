@@ -9,7 +9,8 @@ import {
 } from '@stellar/freighter-api';
 import { Client as VoteClient } from 'stellar_vote';
 import type { PollData } from 'stellar_vote';
-import { Networks } from '@stellar/stellar-sdk';
+import { Networks, rpc, scValToNative } from '@stellar/stellar-sdk';
+import { useRef } from 'react';
 
 // ─── Constants (from .env) ───────────────────────────────────────────────────
 const CONTRACT_ID = import.meta.env.VITE_CONTRACT_ID as string;
@@ -20,6 +21,14 @@ const NETWORK_PASSPHRASE =
 // ─── Types ────────────────────────────────────────────────────────────────────
 export type TxStatus = 'IDLE' | 'PENDING' | 'SIGNED' | 'FAILED';
 
+export interface VoteEvent {
+  id: string;
+  voter: string;
+  optionIdx: number;
+  ledger: number;
+  createdAt: string;
+}
+
 interface StellarContextType {
   walletAddress: string | null;
   isConnecting: boolean;
@@ -27,6 +36,7 @@ interface StellarContextType {
   pollData: PollData | null;
   isPollLoading: boolean;
   pollError: string | null;
+  recentEvents: VoteEvent[];
   connectWallet: () => Promise<void>;
   castVote: (optionIdx: number) => Promise<void>;
   refreshPoll: () => Promise<void>;
@@ -84,6 +94,79 @@ export const StellarProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // Load poll on mount — refreshPoll is async, so no synchronous setState in the effect body
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { refreshPoll(); }, [refreshPoll]);
+
+  // ── Blockchain Event Polling ────────────────────────────────────────────────
+  const [recentEvents, setRecentEvents] = useState<VoteEvent[]>([]);
+  const lastLedgerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!CONTRACT_ID) return;
+    const server = new rpc.Server(RPC_URL);
+
+    const pollEvents = async () => {
+      try {
+        if (!lastLedgerRef.current) {
+          const res = await server.getLatestLedger();
+          lastLedgerRef.current = res.sequence;
+          return;
+        }
+
+        const response = await server.getEvents({
+          startLedger: lastLedgerRef.current,
+          filters: [{ type: 'contract', contractIds: [CONTRACT_ID] }]
+        });
+
+        if (response.events && response.events.length > 0) {
+          let hasNewVotes = false;
+
+          for (const ev of response.events) {
+            try {
+              // Extract event name (first topic)
+              const eventName = scValToNative(ev.topic[0]);
+              if (eventName === 'vote_cast') {
+                const optionIdx = scValToNative(ev.topic[1]);
+                const voter = scValToNative(ev.value);
+
+                // Prevent duplicates if interval overlaps slightly
+                setRecentEvents(prev => {
+                  if (prev.some(e => e.id === ev.id)) return prev;
+                  return [{
+                    id: ev.id,
+                    voter: String(voter),
+                    optionIdx: Number(optionIdx),
+                    ledger: ev.ledger,
+                    createdAt: ev.ledgerClosedAt || new Date().toISOString()
+                  }, ...prev].slice(0, 20); // Keep last 20
+                });
+
+                hasNewVotes = true;
+              }
+            } catch (e) {
+              console.error('Failed to parse event', e, ev);
+            }
+          }
+
+          if (hasNewVotes) {
+            refreshPoll(); // Sync graph in real-time
+          }
+        }
+
+        if (response.latestLedger) {
+          lastLedgerRef.current = response.latestLedger + 1;
+        }
+      } catch (err: any) {
+        if (err?.response?.data?.error?.code === -32600 || String(err).includes('startLedger must be within')) {
+          console.warn('Ledger out of range, resetting cursor...');
+          lastLedgerRef.current = null;
+        } else {
+          console.error('Error polling events:', err);
+        }
+      }
+    };
+
+    const timer = setInterval(pollEvents, 4000); // 4s polling
+    return () => clearInterval(timer);
+  }, [refreshPoll]);
 
   // ── Connect Freighter wallet ───────────────────────────────────────────────
   const connectWallet = async () => {
@@ -163,6 +246,7 @@ export const StellarProvider: React.FC<{ children: React.ReactNode }> = ({ child
       pollData,
       isPollLoading,
       pollError,
+      recentEvents,
       connectWallet,
       castVote,
       refreshPoll,
