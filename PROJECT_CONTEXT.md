@@ -1,7 +1,7 @@
 # 🚀 StellarVote: Project Context & Master Plan
 
 ## 🌟 The Vision
-**StellarVote** is designed to be a premier, **competition-winning Web3 application**. It acts as a decentralized, transparent, and cryptographically secure polling platform built on the **Stellar network** utilizing **Soroban smart contracts**.
+**StellarVote** is designed to be a premier, **competition-winning Web3 application**. It acts as a decentralized, transparent, and cryptographically secure multi-poll platform built on the **Stellar network** utilizing **Soroban smart contracts**.
 
 The objective is to produce a commercial-grade dApp (Decentralized Application) characterized by perfect on-chain reliability, zero-latency perceived UI interactivity, and a premium "Web3-native" dark-mode aesthetic (glassmorphism, subtle animations, and real-time syncing).
 
@@ -9,73 +9,64 @@ The objective is to produce a commercial-grade dApp (Decentralized Application) 
 
 ## 🏗️ Architecture & Tech Stack
 *   **Blockchain Engine:** Stellar Node (Testnet/Mainnet)
-*   **Smart Contracts:** Rust (Soroban SDK)
-*   **Frontend Framework:** React 19 (Vite), TypeScript
-*   **Styling & UI:** TailwindCSS, Lucide-React for crisp iconography
+*   **Smart Contracts:** Rust (Soroban SDK) with Map-based dynamic scaling
+*   **Frontend Framework:** React 19 (Vite), TypeScript, React-Router-Dom (v6)
+*   **Styling & UI:** TailwindCSS, Recharts, Lucide-React for crisp iconography
 *   **Web3 Integration:** `@stellar/stellar-sdk`, `@stellar/freighter-api` (v6)
 
 ---
 
-## 🗺️ Execution Roadmap (Phases 1-15)
+## 🗺️ Execution Roadmap (Live Progress)
 
-### Phase 1: Foundation & Smart Contract Setup ✅
-- Initialized Rust Soroban environment, `Cargo.toml`, and set cross-compilation targets.
-
-### Phase 2: Core Soroban Contract Logic ✅
-- Authored the secure Rust contract for polling (`init`, `vote`, `get_poll`) with strict `voter.require_auth()` cryptographic signatures.
-
-### Phase 3: Contract Deployment & Bindings ✅
+### Phase 1-4: Foundation & Single Poll Prototype ✅
+- Initialized Rust Soroban environment, `Cargo.toml`.
+- Authored the single-poll Rust contract (`init`, `vote`, `get_poll`) with strict `voter.require_auth()` cryptographic signatures.
 - Funded developer account, deployed to **Stellar Testnet**, and generated fully typed TypeScript client bindings.
-
-### Phase 4: Frontend Scaffolding & Initial UI ✅
 - Bootstrapped Vite + React 19, installed Tailwind, and built structural components.
 
-### Phase 5: Live Wallet Integration (Freighter) & Transaction Signing ✅
-- Integrated Freighter API v6 (`getAddress`, `signTransaction`) and wired up on-chain transaction execution successfully.
+### Phase 5: Multi-Poll Platform Evolution ✅
+- **Smart Contract Re-architecture:** Upgraded Rust Soroban contract to support an infinite array of polls using `Map<u32, PollData>`.
+- **Creator Ownership:** Added `creator` Address tracking to `PollData` struct.
+- **Client Deployment:** Redeployed the multi-poll contract (ID: `CDFT2ZWORT3CIWKCJX2B4XK7QWK63KKWWLV4L7MCN6MC2TLCHSGQLD2I`) to the Testnet and regenerated TS bindings.
+- **Context Overhaul:** Updated `StellarContext.tsx` to handle dynamic arrays (`get_polls()`), dynamic poll creation (`create_poll(title, options)`), and targeted voting (`cast_vote(poll_id, option_idx)`).
 
-### Phase 6: Global State Polish & Real-time Blockchain Reads ✅
-- Finalized Web3 dark-mode Dashboard (glassmorphism/scrollbars).
-- Mapped 100% of the UI to read live raw XDR and poll state from the Testnet node.
+### Phase 6: Robust Frontend Routing ✅
+- Shifted from a single-page prototype to a full multi-route architecture via `react-router-dom`:
+    - `/` -> Overview Dashboard
+    - `/polls` -> All Polls Grid
+    - `/polls/create` -> Create Poll Form
+    - `/poll/:id` -> Dedicated Poll Details (Recharts visualizations)
+    - `/analytics` -> Global Analytics
 
-### Phase 7: Advanced Analytics Dashboard (Data Visualization) ⏳ (Next)
-- Introduce Chart.js/Recharts to visualize time-series voting surges and active distributions.
+### Phase 7: UI/UX Premium Polish Sprints (In Progress) ⏳
+- **✅ Overview Redesign:** Integrated top-tier glassmorphic UI with animated StatCards and grid-cols responsiveness.
+- **✅ CreatePoll Redesign:** Implemented hyper-polished gradients and form logic for `create_poll` transaction execution.
+- **✅ PollDetails Redesign:** Wired up Recharts donut/bar-chart visualization arrays and verified active creator formatting.
+- **✅ AnalyticsGlobal Redesign:** Implemented global statistics sweeping and dynamic "Featured Poll" highest-activity auto-selection metric algorithms.
+- **⏳ AllPolls Redesign (Next):** Awaiting final polished structural code from the UI mockups to visualize the entire `polls` mapping array interactively.
 
-### Phase 8: Real-time Subscriptions (Stellar RPC Events) ✅
-- Implemented `@stellar/stellar-sdk` `rpc.Server` event pooling for immediate UI hydration without refreshes.
-
-### Phase 9: UI/UX Polish, Micro-interactions, and Animations ⏳
-- Enhance buttons, loaders, and state transitions using Framer Motion. 
-
-### Phase 10: Security Audit, XDR Validation, and Edge Cases ⏳
-- Rigorously test smart contract boundaries, invalid XDR malformations, and network attack vectors.
-
-### Phase 11: Error Boundaries & Graceful Fallbacks ⏳
-- Implement global error boundaries for node failure, corrupted state parses, and wallet disconnects.
-
-### Phase 12: Frontend Performance Optimization (Vite/React) ⏳
-- Bundle optimization, lazy loading, and Lighthouse score enhancements for sheer speed.
-
-### Phase 13: Mainnet Preparation, Env Configs, and Contract Upgrades ⏳
-- Shift configurations away from testnet. Optimize contract for Mainnet cost economics.
-
-### Phase 14: Mainnet Deployment & Production Launch ⏳
-- Deploy UI globally on Vercel/Netlify. Push contract to Stellar Mainnet.
-
-### Phase 15: Post-Launch Monitoring, Indexing, and Scale Maintenance ⏳
-- Setup historical indexing and telemetry for live decentralized scaling.
+### Phase 8: Submission Readiness ⏳
+- Run final End-to-End smoke tests across the polished UI routes on the Testnet.
+- Secure verifiable Transaction Hashes for the competition Readme.
+- Package screenshots and instructions for GitHub.
 
 ---
 
-## � Level 2 Competition Requirements Checklist
+## ✨ Version 2 (Future Roadmap Additions)
+*   **Creator Dashboard:** Since Phase 5 tracks the `creator` Address, V2 will introduce a dedicated dashboard allowing users to view, manage, and toggle an `archive_poll()` function to disable voting on polls they own.
+
+---
+
+## 🏆 Level 2 Competition Requirements Checklist
 *This project strictly adheres to and exceeds the official Level 2 evaluation criteria:*
 
 ### 📝 Core Requirements
 - [x] **3 error types handled**: Exceeded (5 handled: `AlreadyInitialized`, `NotInitialized`, `PollClosed`, `AlreadyVoted`, `InvalidOption`).
-- [x] **Contract deployed on testnet**: Done via Stellar CLI (`stellarVote` contract).
-- [x] **Contract called from the frontend**: Done (invoking `get_poll` and `vote` via JS SDK).
-- [x] **Transaction status visible**: Done (UI displays amber `PENDING`, green `SIGNED`, red `FAILED` badges elegantly).
-- [x] **Minimum 2+ meaningful commits**: Active (User tracking).
-- [x] **Deliverable Strategy**: Multi-wallet app (Freighter integrated) with live Smart Contract and real-time RPC Event streaming perfectly executed in Phase 5 & 6.
+- [x] **Contract deployed on testnet**: Done via Stellar CLI.
+- [x] **Contract called from the frontend**: Done (invoking `create_poll`, `get_polls`, `get_poll`, and `vote` via JS SDK).
+- [x] **Transaction status visible**: Done (UI displays amber `PENDING`, green `SIGNED`, red `FAILED` badges elegantly with animating loader icons).
+- [x] **Minimum 2+ meaningful commits**: Active (Tracking continuous iteration).
+- [x] **Deliverable Strategy**: Multi-wallet app (Freighter integrated) with live Smart Contract and real-time RPC Event streaming executed perfectly.
 
 ### ✅ Submission / README Requirements (Target for Phase 8)
 - [ ] **Public GitHub repository**
@@ -84,11 +75,3 @@ The objective is to produce a commercial-grade dApp (Decentralized Application) 
 - [ ] **Deployed contract address cited**
 - [ ] **Transaction hash of a contract call (verifiable on Stellar Explorer) cited**
 - [ ] *(Optional)* **Live demo link (deployed on Vercel/Netlify)**
-
----
-
-## �🏆 What Makes This "Competition-Winning"?
-1. **Flawless UI/UX:** Not just a standard bootstrap page. High-end colors, gradients, and icons demonstrate polish.
-2. **True Web3 Paradigms:** It fully respects blockchain cryptographic signatures and reads raw XDR mapped via native RPC polling. 
-3. **Real-time Engine:** By incorporating Phase 6, the dApp doesn't feel sluggish. Viewers see data stream in live—critical for wowing judges.
-4. **Clean Code Architecture:** Segregated logic (`StellarContext` vs. UI Components), explicit custom error handling, and robust type safety (Zero TypeScript/ESLint warnings).
