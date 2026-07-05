@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import {
   isConnected,
   isAllowed,
@@ -10,20 +10,18 @@ import {
 import { Client as VoteClient } from 'stellar_vote';
 import type { PollData } from 'stellar_vote';
 import { Networks, rpc, scValToNative } from '@stellar/stellar-sdk';
-import { useRef } from 'react';
 
-// ─── Constants (from .env) ───────────────────────────────────────────────────
 const CONTRACT_ID = import.meta.env.VITE_CONTRACT_ID as string;
 const RPC_URL = (import.meta.env.VITE_RPC_URL as string) || 'https://soroban-testnet.stellar.org';
 const NETWORK_PASSPHRASE =
   (import.meta.env.VITE_NETWORK_PASSPHRASE as string) || Networks.TESTNET;
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 export type TxStatus = 'IDLE' | 'PENDING' | 'SIGNED' | 'FAILED';
 
 export interface VoteEvent {
   id: string;
   voter: string;
+  pollId: number;
   optionIdx: number;
   ledger: number;
   createdAt: string;
@@ -33,19 +31,18 @@ interface StellarContextType {
   walletAddress: string | null;
   isConnecting: boolean;
   txStatus: TxStatus;
-  pollData: PollData | null;
-  isPollLoading: boolean;
-  pollError: string | null;
+  polls: PollData[];
+  isPollsLoading: boolean;
+  pollsError: string | null;
   recentEvents: VoteEvent[];
   connectWallet: () => Promise<void>;
-  castVote: (optionIdx: number) => Promise<void>;
-  refreshPoll: () => Promise<void>;
+  createPoll: (title: string, options: string[]) => Promise<void>;
+  castVote: (pollId: number, optionIdx: number) => Promise<void>;
+  refreshPolls: () => Promise<void>;
 }
 
-// ─── Context ──────────────────────────────────────────────────────────────────
 const StellarContext = createContext<StellarContextType | undefined>(undefined);
 
-// ─── Helper: build a contract client ─────────────────────────────────────────
 function buildClient(publicKey?: string): VoteClient {
   return new VoteClient({
     contractId: CONTRACT_ID,
@@ -55,49 +52,41 @@ function buildClient(publicKey?: string): VoteClient {
   });
 }
 
-// ─── Provider ─────────────────────────────────────────────────────────────────
 export const StellarProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [txStatus, setTxStatus] = useState<TxStatus>('IDLE');
-  const [pollData, setPollData] = useState<PollData | null>(null);
-  const [isPollLoading, setIsPollLoading] = useState(true);
-  const [pollError, setPollError] = useState<string | null>(null);
 
-  // ── Read live poll data from the contract ─────────────────────────────────
-  const refreshPoll = useCallback(async () => {
+  const [polls, setPolls] = useState<PollData[]>([]);
+  const [isPollsLoading, setIsPollsLoading] = useState(true);
+  const [pollsError, setPollsError] = useState<string | null>(null);
+  const [recentEvents, setRecentEvents] = useState<VoteEvent[]>([]);
+  const lastLedgerRef = useRef<number | null>(null);
+
+  const refreshPolls = useCallback(async () => {
     if (!CONTRACT_ID) {
-      setPollError('VITE_CONTRACT_ID is not set. Add your deployed contract ID to frontend/.env');
-      setIsPollLoading(false);
+      setPollsError('VITE_CONTRACT_ID is not set.');
+      setIsPollsLoading(false);
       return;
     }
     try {
-      setIsPollLoading(true);
-      setPollError(null);
+      setIsPollsLoading(true);
+      setPollsError(null);
       const client = buildClient();
-      const tx = await client.get_poll();
+      const tx = await client.get_polls();
       const result = tx.result;
-      if (result.isOk()) {
-        setPollData(result.unwrap());
-      } else {
-        const err = result.unwrapErr();
-        setPollError('Contract error: ' + err.message);
+      if (result) {
+        setPolls(result);
       }
     } catch (err) {
-      console.error('get_poll failed:', err);
-      setPollError('Failed to load poll data from the contract.');
+      console.error('get_polls failed:', err);
+      setPollsError('Failed to load polls from the contract.');
     } finally {
-      setIsPollLoading(false);
+      setIsPollsLoading(false);
     }
   }, []);
 
-  // Load poll on mount — refreshPoll is async, so no synchronous setState in the effect body
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { refreshPoll(); }, [refreshPoll]);
-
-  // ── Blockchain Event Polling ────────────────────────────────────────────────
-  const [recentEvents, setRecentEvents] = useState<VoteEvent[]>([]);
-  const lastLedgerRef = useRef<number | null>(null);
+  useEffect(() => { refreshPolls(); }, [refreshPolls]);
 
   useEffect(() => {
     if (!CONTRACT_ID) return;
@@ -117,38 +106,38 @@ export const StellarProvider: React.FC<{ children: React.ReactNode }> = ({ child
         });
 
         if (response.events && response.events.length > 0) {
-          let hasNewVotes = false;
+          let hasNewActivity = false;
 
           for (const ev of response.events) {
             try {
-              // Extract event name (first topic)
               const eventName = scValToNative(ev.topic[0]);
+
               if (eventName === 'vote_cast') {
-                const optionIdx = scValToNative(ev.topic[1]);
+                const pollId = scValToNative(ev.topic[1]);
+                const optionIdx = scValToNative(ev.topic[2]);
                 const voter = scValToNative(ev.value);
 
-                // Prevent duplicates if interval overlaps slightly
                 setRecentEvents(prev => {
                   if (prev.some(e => e.id === ev.id)) return prev;
                   return [{
                     id: ev.id,
                     voter: String(voter),
+                    pollId: Number(pollId),
                     optionIdx: Number(optionIdx),
                     ledger: ev.ledger,
                     createdAt: ev.ledgerClosedAt || new Date().toISOString()
-                  }, ...prev].slice(0, 20); // Keep last 20
+                  }, ...prev].slice(0, 20);
                 });
-
-                hasNewVotes = true;
+                hasNewActivity = true;
+              } else if (eventName === 'poll_created') {
+                hasNewActivity = true;
               }
             } catch (e) {
               console.error('Failed to parse event', e, ev);
             }
           }
 
-          if (hasNewVotes) {
-            refreshPoll(); // Sync graph in real-time
-          }
+          if (hasNewActivity) refreshPolls();
         }
 
         if (response.latestLedger) {
@@ -156,41 +145,27 @@ export const StellarProvider: React.FC<{ children: React.ReactNode }> = ({ child
         }
       } catch (err: any) {
         if (err?.response?.data?.error?.code === -32600 || String(err).includes('startLedger must be within')) {
-          console.warn('Ledger out of range, resetting cursor...');
           lastLedgerRef.current = null;
-        } else {
-          console.error('Error polling events:', err);
         }
       }
     };
 
-    const timer = setInterval(pollEvents, 4000); // 4s polling
+    const timer = setInterval(pollEvents, 4000);
     return () => clearInterval(timer);
-  }, [refreshPoll]);
+  }, [refreshPolls]);
 
-  // ── Connect Freighter wallet ───────────────────────────────────────────────
   const connectWallet = async () => {
     setIsConnecting(true);
     try {
       const connectionResult = await isConnected();
-      if (!connectionResult.isConnected) {
-        throw new Error('Freighter wallet extension is not installed. Please install it from freighter.app');
-      }
-
+      if (!connectionResult.isConnected) throw new Error('Freighter wallet extension is not installed.');
       const allowedResult = await isAllowed();
       if (!allowedResult.isAllowed) {
         const grantResult = await setAllowed();
-        if (!grantResult.isAllowed) {
-          throw new Error('User denied access to Freighter wallet.');
-        }
+        if (!grantResult.isAllowed) throw new Error('User denied access to Freighter wallet.');
       }
-
-      // Freighter v6: getAddress() returns { address, error? }
       const { address, error } = await getAddress();
-      if (error || !address) {
-        throw new Error(String(error ?? 'Could not retrieve address from Freighter.'));
-      }
-
+      if (error || !address) throw new Error(String(error ?? 'Could not retrieve address.'));
       setWalletAddress(address);
       setTxStatus('IDLE');
     } catch (err) {
@@ -201,36 +176,52 @@ export const StellarProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
-  // ── Cast a vote on-chain ───────────────────────────────────────────────────
-  const castVote = async (optionIdx: number) => {
-    if (!walletAddress) {
-      throw new Error('Please connect your wallet first.');
-    }
-    if (!CONTRACT_ID) {
-      throw new Error('Contract ID is not configured.');
-    }
-
+  const createPoll = async (title: string, options: string[]) => {
+    if (!walletAddress) throw new Error('Please connect your wallet first.');
+    if (!CONTRACT_ID) throw new Error('Contract ID is not configured.');
     setTxStatus('PENDING');
     try {
       const client = buildClient(walletAddress);
-      const tx = await client.vote({ voter: walletAddress, option_idx: optionIdx });
+
+      const tx = await client.create_poll({
+        creator: walletAddress,
+        title,
+        poll_options: options
+      });
 
       await tx.signAndSend({
         signTransaction: async (xdr: string) => {
-          // Freighter v6: signTransaction returns { signedTxXdr, signerAddress, error? }
-          const result = await signTransaction(xdr, {
-            networkPassphrase: NETWORK_PASSPHRASE,
-          });
-          if (result.error) {
-            throw new Error(String(result.error));
-          }
+          const result = await signTransaction(xdr, { networkPassphrase: NETWORK_PASSPHRASE });
+          if (result.error) throw new Error(String(result.error));
           return { signedTxXdr: result.signedTxXdr };
         },
       });
-
       setTxStatus('SIGNED');
-      // Refresh to show updated vote counts
-      await refreshPoll();
+      await refreshPolls();
+    } catch (err) {
+      console.error('Create Poll failed:', err);
+      setTxStatus('FAILED');
+      throw err;
+    }
+  };
+
+  const castVote = async (pollId: number, optionIdx: number) => {
+    if (!walletAddress) throw new Error('Please connect your wallet first.');
+    if (!CONTRACT_ID) throw new Error('Contract ID is not configured.');
+    setTxStatus('PENDING');
+    try {
+      const client = buildClient(walletAddress);
+      const tx = await client.vote({ voter: walletAddress, poll_id: pollId, option_idx: optionIdx });
+
+      await tx.signAndSend({
+        signTransaction: async (xdr: string) => {
+          const result = await signTransaction(xdr, { networkPassphrase: NETWORK_PASSPHRASE });
+          if (result.error) throw new Error(String(result.error));
+          return { signedTxXdr: result.signedTxXdr };
+        },
+      });
+      setTxStatus('SIGNED');
+      await refreshPolls();
     } catch (err) {
       console.error('Vote failed:', err);
       setTxStatus('FAILED');
@@ -243,20 +234,20 @@ export const StellarProvider: React.FC<{ children: React.ReactNode }> = ({ child
       walletAddress,
       isConnecting,
       txStatus,
-      pollData,
-      isPollLoading,
-      pollError,
+      polls,
+      isPollsLoading,
+      pollsError,
       recentEvents,
       connectWallet,
+      createPoll,
       castVote,
-      refreshPoll,
+      refreshPolls,
     }}>
       {children}
     </StellarContext.Provider>
   );
 };
 
-// ─── Hook ─────────────────────────────────────────────────────────────────────
 export const useStellar = () => {
   const context = useContext(StellarContext);
   if (!context) throw new Error('useStellar must be used within a StellarProvider');

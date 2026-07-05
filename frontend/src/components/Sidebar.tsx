@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Home, BarChart2, PlusCircle, LineChart, Moon, ExternalLink, Sparkles } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 
 export const Sidebar = () => {
     const [darkMode, setDarkMode] = useState(true);
+    const location = useLocation();
 
     return (
         <div className="w-[260px] flex-shrink-0 flex flex-col h-full bg-[#050511]/40 border-r border-white/5 backdrop-blur-xl relative z-10 pt-6 px-4 pb-4">
@@ -18,10 +20,10 @@ export const Sidebar = () => {
 
             {/* Nav */}
             <nav className="flex-1 space-y-1.5">
-                <NavItem icon={<Home size={18} />} label="Overview" />
-                <NavItem icon={<BarChart2 size={18} />} label="All Polls" active />
-                <NavItem icon={<PlusCircle size={18} />} label="Create Poll" />
-                <NavItem icon={<LineChart size={18} />} label="Analytics" />
+                <NavItem to="/" icon={<Home size={18} />} label="Overview" active={location.pathname === '/'} />
+                <NavItem to="/polls" icon={<BarChart2 size={18} />} label="All Polls" active={location.pathname === '/polls' || location.pathname.startsWith('/poll/')} />
+                <NavItem to="/polls/create" icon={<PlusCircle size={18} />} label="Create Poll" active={location.pathname === '/polls/create'} />
+                <NavItem to="/analytics" icon={<LineChart size={18} />} label="Analytics" active={location.pathname === '/analytics'} />
             </nav>
 
             {/* Bottom widgets */}
@@ -55,19 +57,19 @@ export const Sidebar = () => {
     );
 }
 
-const NavItem = ({ icon, label, active = false }: { icon: React.ReactNode, label: string, active?: boolean }) => {
+const NavItem = ({ icon, label, active = false, to }: { icon: React.ReactNode, label: string, active?: boolean, to: string }) => {
     if (active) {
         return (
-            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-blue-600/20 to-transparent border-l-[3px] border-blue-500 text-white cursor-pointer relative overflow-hidden shadow-[inset_20px_0_20px_-20px_rgba(59,130,246,0.3)]">
+            <Link to={to} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-blue-600/20 to-transparent border-l-[3px] border-blue-500 text-white cursor-pointer relative overflow-hidden shadow-[inset_20px_0_20px_-20px_rgba(59,130,246,0.3)] block decoration-transparent">
                 <div className="text-blue-400">{icon}</div>
                 <span className="text-sm font-semibold">{label}</span>
-            </div>
+            </Link>
         );
     }
     return (
-        <div className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 cursor-pointer transition-all border-l-[3px] border-transparent">
+        <Link to={to} className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 cursor-pointer transition-all border-l-[3px] border-transparent block decoration-transparent">
             <div>{icon}</div>
             <span className="text-sm font-medium">{label}</span>
-        </div>
+        </Link>
     );
 };
