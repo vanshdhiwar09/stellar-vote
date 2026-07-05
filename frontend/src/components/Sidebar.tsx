@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
-import { Home, BarChart2, PlusCircle, LineChart, Moon, ExternalLink, Sparkles } from 'lucide-react';
+import { Home, BarChart2, PlusCircle, LineChart, ExternalLink, Sparkles } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 export const Sidebar = () => {
-    const [darkMode, setDarkMode] = useState(true);
     const location = useLocation();
 
     return (
@@ -34,23 +32,14 @@ export const Sidebar = () => {
                         <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
                         <span className="text-sm text-white font-medium">Stellar Testnet</span>
                     </div>
-                    <button className="w-full py-2 bg-[#171733] hover:bg-[#1f1f45] transition-colors rounded-lg flex items-center justify-center gap-2 text-xs text-slate-300 font-medium border border-white/5">
-                        View on Explorer <ExternalLink size={14} />
-                    </button>
-                </div>
-
-                <div className="flex items-center justify-between px-2">
-                    <div className="flex items-center gap-2 text-slate-400">
-                        <Moon size={16} />
-                        <span className="text-sm font-medium">Dark Mode</span>
-                    </div>
-                    {/* Toggle Switch */}
-                    <div
-                        onClick={() => setDarkMode(!darkMode)}
-                        className="w-10 h-5 bg-indigo-600 rounded-full relative cursor-pointer flex items-center px-1 shadow-[0_0_10px_rgba(79,70,229,0.3)] transition-all"
+                    <a
+                        href="https://stellar.expert/explorer/testnet/contract/CDFT2ZWORT3CIWKCJX2B4XK7QWK63KKWWLV4L7MCN6MC2TLCHSGQLD2I"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="w-full py-2 bg-[#171733] hover:bg-[#1f1f45] transition-colors rounded-lg flex items-center justify-center gap-2 text-xs text-slate-300 font-medium border border-white/5"
                     >
-                        <div className={`w-3.5 h-3.5 bg-white rounded-full absolute shadow-sm transition-all duration-300 ${darkMode ? 'right-1' : 'left-1 bg-slate-200'}`}></div>
-                    </div>
+                        View on Explorer <ExternalLink size={14} />
+                    </a>
                 </div>
             </div>
         </div>
