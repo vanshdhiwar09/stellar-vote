@@ -62,7 +62,7 @@ export const PollDetails = () => {
         });
     }
 
-    const chartData = poll.options.map((opt, idx) => ({
+    const chartData = poll.options.map((opt: string, idx: number) => ({
         name: opt,
         votes: votesMap.get(idx) || 0,
     }));
@@ -140,7 +140,7 @@ export const PollDetails = () => {
                             <h3 className="text-lg text-white font-bold mb-7 relative z-10">Cast Your Vote</h3>
 
                             <div className="space-y-4 mb-10 flex-1 relative z-10">
-                                {poll.options.map((opt, idx) => {
+                                {poll.options.map((opt: string, idx: number) => {
                                     const count = votesMap.get(idx) || 0;
                                     const pct = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
                                     const active = selectedOption === idx;
@@ -221,7 +221,7 @@ export const PollDetails = () => {
                                                     stroke="none"
                                                     cornerRadius={4}
                                                 >
-                                                    {chartData.map((_, index) => (
+                                                    {chartData.map((_: any, index: number) => (
                                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                                     ))}
                                                 </Pie>
@@ -240,7 +240,7 @@ export const PollDetails = () => {
 
                                     {/* Custom Legend */}
                                     <div className="w-full xl:w-1/2 flex flex-col justify-center gap-3 xl:pl-6 pb-2">
-                                        {chartData.map((opt, idx) => {
+                                        {chartData.map((opt: { name: string; votes: number }, idx: number) => {
                                             const pct = totalVotes > 0 ? Math.round((opt.votes / totalVotes) * 100) : 0;
                                             return (
                                                 <div key={idx} className="flex items-center justify-between text-sm">
@@ -295,7 +295,7 @@ export const PollDetails = () => {
                                             radius={[4, 4, 0, 0]}
                                             barSize={28}
                                         >
-                                            {chartData.map((_, index) => (
+                                            {chartData.map((_: any, index: number) => (
                                                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} opacity={0.95} />
                                             ))}
                                         </Bar>

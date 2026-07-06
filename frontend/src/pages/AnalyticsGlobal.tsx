@@ -73,7 +73,7 @@ export const AnalyticsGlobal = () => {
             Object.entries(rawVotes).forEach(([k, v]) => votesMap.set(Number(k), Number(v)));
         }
 
-        chartData = activePoll.options.map((opt, idx) => {
+        chartData = activePoll.options.map((opt: string, idx: number) => {
             const votes = votesMap.get(idx) || 0;
             pollTotalVotes += votes;
             return { name: opt, votes };
@@ -189,7 +189,7 @@ export const AnalyticsGlobal = () => {
                                             dataKey="votes"
                                             stroke="none"
                                         >
-                                            {chartData.map((_, index) => (
+                                            {chartData.map((_: any, index: number) => (
                                                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                             ))}
                                         </Pie>
@@ -206,7 +206,7 @@ export const AnalyticsGlobal = () => {
                             </div>
 
                             <div className="flex flex-col justify-center gap-4 border-t sm:border-t-0 sm:border-l border-white/5 pt-6 sm:pt-0 pl-0 sm:pl-8 min-w-[160px]">
-                                {chartData.map((opt, idx) => {
+                                {chartData.map((opt: { name: string; votes: number }, idx: number) => {
                                     const pct = pollTotalVotes > 0 ? Math.round((opt.votes / pollTotalVotes) * 100) : 0;
                                     return (
                                         <div key={idx} className="flex flex-col gap-0.5">
@@ -266,7 +266,7 @@ export const AnalyticsGlobal = () => {
                                         radius={[4, 4, 0, 0]}
                                         barSize={32}
                                     >
-                                        {chartData.map((_, index) => (
+                                        {chartData.map((_: any, index: number) => (
                                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} opacity={1} />
                                         ))}
                                     </Bar>

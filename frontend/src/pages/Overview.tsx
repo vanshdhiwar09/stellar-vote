@@ -157,7 +157,7 @@ export const Overview = () => {
                                         <p className="text-xs text-red-400/80">{pollsError}</p>
                                     </div>
                                 ) : (
-                                    options.map((name, idx) => {
+                                    options.map((name: string, idx: number) => {
                                         const count = votesMap.get(idx) ?? 0;
                                         const pct = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
                                         const active = selectedOption === idx;
