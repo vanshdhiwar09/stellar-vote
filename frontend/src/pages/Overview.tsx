@@ -67,7 +67,7 @@ export const Overview = () => {
     };
 
     return (
-        <div className="max-w-[1400px] mx-auto w-full pb-10 fade-in overflow-y-auto font-sans">
+        <div className="max-w-[1400px] mx-auto w-full pb-10 fade-in font-sans">
             <div className="flex items-center gap-3 mb-2">
                 <h1 className="text-3xl font-bold text-white tracking-tight">Overview</h1>
                 <Trophy className="w-6 h-6 text-[#6b3ce2]" />

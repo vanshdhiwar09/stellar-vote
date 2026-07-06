@@ -89,7 +89,7 @@ export const PollDetails = () => {
     };
 
     return (
-        <div className="flex-1 w-full overflow-y-auto px-2 lg:px-6 pb-10 font-sans fade-in">
+        <div className="flex-1 w-full px-2 lg:px-6 pb-10 font-sans fade-in">
             <Toaster position="top-right" toastOptions={{
                 style: { background: '#13132b', color: '#e2e8f0', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '12px', fontSize: '13px' },
             }} />
