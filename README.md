@@ -126,15 +126,15 @@ If deploying to Vercel yourself, these are the environmental assignments needed:
 
 ### Dashboard & Analytics
 ![Dashboard](./screenshots/dashboard.png)
-*(Please place a screenshot of your main overview or analytics tab in `screenshots/dashboard.png`)*
+
 
 ### Poll Details & Voting
 ![Voting Interface](./screenshots/voting.png)
-*(Please place a screenshot of a specific Poll showing the visual bars in `screenshots/voting.png`)*
+
 
 ### Mobile Responsiveness
 ![Mobile View](./screenshots/mobile.jpeg)
-*(Please place a screenshot of the site running on a mobile browser or mobile devtools in `screenshots/mobile.png`)*
+
 
 ---
 
