@@ -4,7 +4,7 @@ A premium, multi-poll decentralized voting platform on the Stellar testnet with 
 
 ## Live Demo
 
-**Live App:** https://stellar-vote.vercel.app  
+**Live App:** https://stellar-vote-frontend.vercel.app
 **GitHub:** https://github.com/vanshdhiwar09/stellar-vote
 
 ---
@@ -23,7 +23,7 @@ A premium, multi-poll decentralized voting platform on the Stellar testnet with 
 ## Wallet Options
 
 ![Wallet Integration](./screenshots/wallet-integration.png)
-*(Please place a screenshot of your screen showing the Freighter extension popup connected to your site in `screenshots/wallet-integration.png`)*
+
 
 | Wallet | Type |
 |--------|------|
@@ -133,7 +133,7 @@ If deploying to Vercel yourself, these are the environmental assignments needed:
 *(Please place a screenshot of a specific Poll showing the visual bars in `screenshots/voting.png`)*
 
 ### Mobile Responsiveness
-![Mobile View](./screenshots/mobile.png)
+![Mobile View](./screenshots/mobile.jpeg)
 *(Please place a screenshot of the site running on a mobile browser or mobile devtools in `screenshots/mobile.png`)*
 
 ---
