@@ -5,6 +5,9 @@
     "frontend",
     "packages/*"
   ],
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "dev": "npm run dev --workspace=frontend",
     "build": "npm run build --workspace=stellar_vote && npm run build --workspace=frontend",
