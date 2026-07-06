@@ -1,45 +1,159 @@
-# 🚀 StellarVote - Multi-Poll Web3 Platform
+# StellarVote
 
-StellarVote is a premium, real-time decentralized polling application built on the **Stellar Network** utilizing **Soroban Smart Contracts** and **React 19**. It features cryptographically secure voting, instantaneous network syncing without page refreshes, and an ultra-modern glassmorphic UI.
+A premium, multi-poll decentralized voting platform on the Stellar testnet with Soroban contract integration, real-time analytics, and a beautiful mobile-responsive glassmorphic dashboard.
 
-## 🔗 Live Network Verification
-This dApp has been rigorously tested and deployed to the Stellar Testnet.
+## Live Demo
 
-*   **Deployed Contract Address:** `CDFT2ZWORT3CIWKCJX2B4XK7QWK63KKWWLV4L7MCN6MC2TLCHSGQLD2I`
-*   **Verified Transaction Hash (Vote Cast):** [`b634b1cb400d8c03ba57abbe4a9c0d4db04cb8507097309d912380db6d417983`](https://stellar.expert/explorer/testnet/tx/b634b1cb400d8c03ba57abbe4a9c0d4db04cb8507097309d912380db6d417983)
+**Live App:** https://stellar-vote.vercel.app  
+**GitHub:** https://github.com/vanshdhiwar09/stellar-vote
 
-## 📸 Wallet Integration Details
-**Important:** You must have the [Freighter Wallet v6+](https://freighter.app/) extension installed in your browser and set to the **Testnet** network to securely interact with the application.
+---
 
-> *Note for Judges: [Insert your screenshot of Freighter connected to your UI right here - eg: `![Wallet Options](./screenshot.png)`]*
+## Features
 
-## 🛠 Features
-*   **Infinite Scaling:** Uses a dynamic `Map<u32, PollData>` inside Rust to support unlimited polls.
-*   **Live UI Hydration:** Subscribes to Stellar RPC events to automatically re-render active vote counts globally.
-*   **Interactive Analytics:** Recharts library visualizes vote distributions spanning the blockchain network natively.
+- **Multi-Poll Architecture** — Anyone can create, deploy, and manage polls securely on-chain.
+- **Smart Contract** — Log and query active/completed polls on the Soroban testnet natively.
+- **Real-Time Analytics** — Live visualizations of vote distribution using Recharts directly from RPC states.
+- **Transaction Status** — In-progress deployment monitors and Stellar Expert explorer receipts.
+- **Error Handling** — Explicit captures for "Wallet not found", "User rejected signature", and "Invalid Options".
+- **Responsive UI** — Ultra-modern, dark-themed glassmorphic design that scales flawlessly to mobile devices.
 
-## ⚙️ Quick Start (Developer Setup)
+---
 
-### 1. Prerequisites
-- Node.js (v18+)
-- Freighter browser extension installed and configured for Testnet
-- Rust & Soroban CLI (if you wish to recompile the backend, otherwise skip)
+## Wallet Options
 
-### 2. Run the Frontend Locally
+![Wallet Integration](./screenshots/wallet-integration.png)
+*(Please place a screenshot of your screen showing the Freighter extension popup connected to your site in `screenshots/wallet-integration.png`)*
+
+| Wallet | Type |
+|--------|------|
+| Freighter | Browser extension |
+
+---
+
+## Deployment Details
+
+### Contract Address (Testnet)
+
+```text
+CDFT2ZWORT3CIWKCJX2B4XK7QWK63KKWWLV4L7MCN6MC2TLCHSGQLD2I
+```
+
+### Example Transaction Hash
+
+```text
+b634b1cb400d8c03ba57abbe4a9c0d4db04cb8507097309d912380db6d417983
+```
+
+**Verify on Stellar Explorer:**  
+https://stellar.expert/explorer/testnet/tx/b634b1cb400d8c03ba57abbe4a9c0d4db04cb8507097309d912380db6d417983
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| Frontend | React 19 + Vite |
+| Language | Strict TypeScript |
+| Blockchain | Stellar Soroban (Rust) |
+| Wallets | @stellar/freighter-api v6+ |
+| Styling | TailwindCSS v4 + Lucide React |
+
+---
+
+## Quick Start
+
+### Prerequisites
+
+- Node.js 20+
+- A Stellar testnet wallet (Freighter)
+
+### Web App Setup
+
 ```bash
-git clone https://github.com/your-username/stellar-vote.git
-cd stellar-vote/frontend
+# Clone the repository
+git clone https://github.com/vanshdhiwar09/stellar-vote.git
+cd stellar-vote
+
+# Install workspace dependencies
 npm install
+
+# Compile Soroban Bindings & Boot Vite
 npm run dev
 ```
 
-Open `http://localhost:5173` in your browser. 
-Click **Connect Wallet** and verify you are on the Testnet before interacting!
+App runs securely at **http://localhost:5173**
 
-## 📁 Repository Architecture
-- `contracts/stellar-vote`: The Soroban Rust Smart Contract source code.
-- `packages/stellar_vote`: Auto-generated TypeScript client bindings for the contract.
-- `frontend/src`: The Vite + React UI environment.
-  - `components/` - Shell structures & Sidebar nav.
-  - `context/StellarContext.tsx` - Core Web3 global state manipulation.
-  - `pages/` - View controllers (Overview, CreatePoll, PollDetails).
+---
+
+## Project Structure
+
+```text
+stellar-vote/
+├── frontend/               # React 19 UI Context and Grid Layouts
+├── contracts/              # Soroban Rust Voting Contract source code
+├── packages/stellar_vote/  # Auto-generated TypeScript bindings for the contract
+├── screenshots/            # Submission screenshots
+└── README.md
+```
+
+---
+
+## Configuration
+
+If deploying to Vercel yourself, these are the environmental assignments needed:
+
+### Frontend Variables
+
+| Variable | Value |
+|----------|--------|
+| `VITE_CONTRACT_ID` | `CDFT2ZWORT3CIWKCJX2B4XK7QWK63KKWWLV4L7MCN6MC2TLCHSGQLD2I` |
+
+*(This is safely injected locally via `frontend/.env`)*
+
+### Vercel Project Setup (Monorepo)
+
+| Project | Root Directory | Output Directory | Framework Preset |
+|---------|----------------|------------------|------------------|
+| Frontend | `(Blank)`      | `frontend/dist`  | `Other`          |
+
+*(By omitting the Root Directory, Vercel accurately builds the `stellar_vote` internal workspace dependencies before bundling Vite).*
+
+---
+
+## Screenshots
+
+### Dashboard & Analytics
+![Dashboard](./screenshots/dashboard.png)
+*(Please place a screenshot of your main overview or analytics tab in `screenshots/dashboard.png`)*
+
+### Poll Details & Voting
+![Voting Interface](./screenshots/voting.png)
+*(Please place a screenshot of a specific Poll showing the visual bars in `screenshots/voting.png`)*
+
+### Mobile Responsiveness
+![Mobile View](./screenshots/mobile.png)
+*(Please place a screenshot of the site running on a mobile browser or mobile devtools in `screenshots/mobile.png`)*
+
+---
+
+## Level Requirements Met
+
+| Requirement | Implementation |
+|-------------|----------------|
+| Live Event Handling | State re-hydration globally tracks incoming polls and updates vote aggregations |
+| Contract on testnet | `CDFT2ZWORT3CIWKCJX2B4XK7QWK63KKWWLV4L7MCN6MC2TLCHSGQLD2I` |
+| Contract interactions | `create_poll`, `vote`, `get_poll`, `get_all_polls` |
+| Advanced Storage | Designed utilizing dynamic strictly-typed `Map<u32, PollData>` instances |
+| Premium UX/UI | Fully responsive Tailwind grids, Recharts integrations, and Glassmorphic themes |
+
+---
+
+## License
+
+MIT
+
+**Built on Stellar**
+
+🔗 [GitHub Repository](https://github.com/vanshdhiwar09/stellar-vote)
