@@ -40,11 +40,9 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
           <MobileNavItem to="/polls" icon={
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" x2="12" y1="20" y2="10" /><line x1="18" x2="18" y1="20" y2="4" /><line x1="6" x2="6" y1="20" y2="16" /></svg>
           } />
-          <div className="relative -top-5">
-            <MobileNavItem to="/polls/create" isPrimary icon={
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" x2="12" y1="8" y2="16" /><line x1="8" x2="16" y1="12" y2="12" /></svg>
-            } />
-          </div>
+          <MobileNavItem to="/polls/create" isPrimary icon={
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" x2="12" y1="8" y2="16" /><line x1="8" x2="16" y1="12" y2="12" /></svg>
+          } />
           <MobileNavItem to="/analytics" icon={
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18" /><path d="m19 9-5 5-4-4-3 3" /></svg>
           } />
@@ -62,7 +60,7 @@ const MobileNavItem = ({ to, icon, isPrimary }: { to: string, icon: React.ReactN
 
   if (isPrimary) {
     return (
-      <Link to={to} className={`w-14 h-14 rounded-full flex items-center justify-center text-white shadow-lg transition-transform hover:scale-105 active:scale-95 ${isActive ? 'bg-gradient-to-tr from-purple-500 to-indigo-500 shadow-[0_0_20px_rgba(168,85,247,0.5)]' : 'bg-gradient-to-tr from-indigo-500 to-blue-600 shadow-[0_0_15px_rgba(79,70,229,0.4)]'}`}>
+      <Link to={to} className={`w-11 h-11 mx-1 rounded-full flex items-center justify-center text-white shadow-lg transition-transform hover:scale-105 active:scale-95 ${isActive ? 'bg-gradient-to-tr from-purple-500 to-indigo-500 shadow-[0_0_15px_rgba(168,85,247,0.4)]' : 'bg-gradient-to-tr from-indigo-500 to-blue-600 shadow-[0_0_10px_rgba(79,70,229,0.3)]'}`}>
         {icon}
       </Link>
     );
