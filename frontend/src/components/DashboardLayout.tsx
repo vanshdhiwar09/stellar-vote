@@ -5,7 +5,7 @@ import { Header } from './Header';
 
 export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
-    <div className="flex flex-col md:flex-row h-[100dvh] w-screen overflow-hidden font-sans text-slate-200 antialiased"
+    <div className="flex flex-col md:flex-row min-h-screen w-full font-sans text-slate-200 antialiased"
       style={{ background: 'linear-gradient(135deg, #07071a 0%, #0d0d2b 50%, #07071a 100%)' }}>
 
       <style>{`
@@ -19,21 +19,21 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
         style: { background: '#13132b', color: '#e2e8f0', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '12px', fontSize: '13px' },
       }} />
 
-      <div className="hidden md:flex">
+      <div className="hidden md:flex sticky top-0 h-screen">
         <Sidebar />
       </div>
 
       {/* ── Main Area ── */}
-      <div className="flex-1 flex flex-col min-w-0 relative">
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen relative">
         <Header />
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-10 pb-24 md:pb-10 custom-scrollbar relative">
+        <main className="flex-1 p-4 sm:p-10 pb-28 md:pb-10 relative">
           {children}
         </main>
 
         {/* ── Mobile Nav Overlay ── */}
-        <div className="md:hidden sticky bottom-0 w-full h-16 bg-[#0a0a1f]/90 backdrop-blur-xl border-t border-white/5 flex items-center justify-around px-2 z-50 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+        <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-[400px] h-16 bg-[#0a0a1f]/90 backdrop-blur-xl border border-white/10 flex items-center justify-around px-4 z-50 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.8)]">
           <MobileNavItem to="/" icon={
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
           } />
