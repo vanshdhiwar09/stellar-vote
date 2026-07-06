@@ -27,9 +27,9 @@ export const Header: React.FC = () => {
         : null;
 
     return (
-        <header className="h-20 shrink-0 flex items-center justify-between px-8 border-b border-white/5 bg-[#07071a]/30 backdrop-blur-md">
+        <header className="h-20 shrink-0 flex items-center justify-between px-4 sm:px-8 border-b border-white/5 bg-[#07071a]/30 backdrop-blur-md">
             {/* Search */}
-            <div className="relative w-80">
+            <div className="relative hidden md:block w-80">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                 <input
                     type="text"
@@ -44,8 +44,9 @@ export const Header: React.FC = () => {
                     <>
                         <div className="bg-[#111129] border border-white/5 rounded-full pl-4 pr-3 py-2 flex items-center gap-3">
                             <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
-                            <span className="text-xs text-slate-300 font-semibold tracking-wide">Connected: {shortAddr}</span>
-                            <ChevronDown size={14} className="text-slate-500 ml-1" />
+                            <span className="text-xs text-slate-300 font-semibold tracking-wide hidden sm:block">Connected: {shortAddr}</span>
+                            <span className="text-xs text-slate-300 font-semibold tracking-wide sm:hidden">{shortAddr}</span>
+                            <ChevronDown size={14} className="text-slate-500 ml-1 hidden sm:block" />
                         </div>
                         <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm text-white bg-gradient-to-tr from-indigo-500 to-purple-500 border border-white/10 shadow-[0_0_15px_rgba(168,85,247,0.3)] cursor-pointer">
                             {walletAddress.slice(0, 1)}
